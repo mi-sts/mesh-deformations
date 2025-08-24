@@ -42,3 +42,6 @@
 
 # IDE
 .idea/*
+
+# Build files
+build/*
