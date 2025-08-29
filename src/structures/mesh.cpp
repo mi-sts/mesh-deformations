@@ -9,6 +9,10 @@ id_t Mesh::id() const noexcept {
     return id_;
 }
 
+id_t Mesh::family_id() const noexcept {
+    return family_id_;
+}
+
 sptr<const MatrixX3f> Mesh::vertices() const noexcept {
     return vertices_;
 }
@@ -36,6 +40,10 @@ bool Mesh::operator==(const Mesh& other) const noexcept {
 
 id_t Mesh::getId() {
     return id_counter_++;
+}
+
+id_t Mesh::getFamilyId() {
+    return family_id_counter_++;
 }
 
 MatrixX3f Mesh::calculateVerticesNormals(const MatrixX3f& vertices, const MatrixX3i& triangles) {

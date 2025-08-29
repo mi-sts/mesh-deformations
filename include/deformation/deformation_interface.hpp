@@ -8,12 +8,12 @@ public:
     virtual ~IDeformation() = default;
 
     virtual id_t id() = 0;
-    sptr<Mesh> applyDeformation(sptr<Mesh> mesh, IDeformationParams& params) {
+    sptr<Mesh> applyDeformation(sptr<const Mesh> mesh, const IDeformationParams& params) {
         auto deformed_vertices = getDeformedVertices(mesh, params);
 
         return std::make_shared<Mesh>(*mesh, *deformed_vertices);
     }
 
 private:
-    virtual sptr<MatrixX3f> getDeformedVertices(sptr<Mesh> mesh, IDeformationParams& params) = 0;
+    virtual sptr<MatrixX3f> getDeformedVertices(sptr<const Mesh> mesh, const IDeformationParams& params) = 0;
 };

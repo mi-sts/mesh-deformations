@@ -40,8 +40,8 @@ public:
         return 1;
     }
 
-    sptr<MatrixX3f> getDeformedVertices(sptr<Mesh> mesh, IDeformationParams& params) override {
-        auto& offset_params = dynamic_cast<VertexOffsetParams&>(params);
+    sptr<MatrixX3f> getDeformedVertices(sptr<const Mesh> mesh, const IDeformationParams& params) override {
+        auto& offset_params = dynamic_cast<const VertexOffsetParams&>(params);
 
         sptr<MatrixX3f> vertices = std::make_shared<MatrixX3f>(*mesh->vertices());
         *vertices += offset_params.offsets();

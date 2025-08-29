@@ -1,12 +1,20 @@
 #pragma once
 
-#include "deformation/deformations_snapshot.hpp"
+#include "utils/data_types.hpp"
+
+class DeformationsSnapshot;
+class Mesh;
 
 class IDeformationsCache {
 public:
     virtual ~IDeformationsCache() = default;
 
-    virtual void add(const sptr<DeformationsSnapshot>& snapshot) = 0;
-    virtual sptr<DeformationsSnapshot> get(size_t hash) const noexcept = 0;
-    virtual bool contains(size_t hash) const noexcept = 0;
+    virtual void addSnapshotMesh(sptr<const Mesh> mesh, sptr<const DeformationsSnapshot> snapshot) = 0;
+    virtual void addBaseMesh(sptr<const Mesh> mesh) = 0;
+
+    virtual sptr<const Mesh> latestMesh(id_t mesh_family_id) const = 0;
+    virtual sptr<const DeformationsSnapshot> latestSnapshot(id_t mesh_family_id) const = 0;
+    virtual sptr<const Mesh> snapshotMesh(const DeformationsSnapshot& snapshot) const = 0;
+
+    virtual bool containsSnapshot(const DeformationsSnapshot& snapshot) const = 0;
 };

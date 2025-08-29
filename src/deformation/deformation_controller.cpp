@@ -5,100 +5,82 @@
 #include "deformation/vertex_offset_deformation.hpp"
 #include "structures/mesh.hpp"
 
-std::shared_future<sptr<Mesh>> DeformationController::applyDeformation(id_t mesh_id, sptr<IDeformationParams> params) {
-    sptr<DeformationsSnapshot> prev_snapshot = latestSnapshot(mesh_id);
-    sptr<DeformationsSnapshot> new_snapshot = std::make_shared<DeformationsSnapshot>(mesh_id, params, prev_snapshot);
+std::shared_future<MeshSnapshotData> DeformationController::applyDeformation(id_t mesh_family_id,
+                                                                       sptr<const IDeformationParams> params) {
+    sptr<const DeformationsSnapshot> prev_snapshot = latestSnapshot(mesh_family_id);
+    sptr<DeformationsSnapshot> new_snapshot =
+            std::make_shared<DeformationsSnapshot>(mesh_family_id, params, prev_snapshot);
 
-    auto future_mesh = threadpool_
-                               .enqueue([this, params, prev_snapshot]() -> sptr<Mesh> {
-                                   sptr<Mesh> parent_mesh = latestMesh(prev_snapshot->mesh_id());
-                                   if (!parent_mesh) {
-                                       return nullptr;
-                                   }
-                                   return VertexOffsetDeformation().applyDeformation(parent_mesh, *params);
-                               })
-                               .share();
+    auto mesh_future =
+            threadpool_
+                    .enqueue([this, mesh_family_id, params, prev_snapshot, new_snapshot]() -> MeshSnapshotData {
+                        sptr<const Mesh> parent_mesh = latestMesh(mesh_family_id);
+                        if (!parent_mesh) {
+                            std::cerr << "There is no mesh for the given mesh family id.\n";
+                            return MeshSnapshotData{};
+                        }
 
+                        auto future_mesh = VertexOffsetDeformation().applyDeformation(parent_mesh, *params);
+                        cache_.addSnapshotMesh(future_mesh, new_snapshot);
+                        return MeshSnapshotData{.mesh = future_mesh, .snapshot = new_snapshot};
+                    })
+                    .share();
+
+    std::lock_guard lock(processing_meshes_mutex_);
+    processing_meshes_data_[new_snapshot->hash()] = mesh_future;
+    return mesh_future;
+}
+
+
+sptr<const Mesh> DeformationController::latestMesh(id_t mesh_family_id) const {
+    return cache_.latestMesh(mesh_family_id);
+}
+
+sptr<const DeformationsSnapshot> DeformationController::latestSnapshot(id_t mesh_family_id) const {
+    return cache_.latestSnapshot(mesh_family_id);
+}
+
+sptr<const Mesh> DeformationController::waitSnapshotMesh(const sptr<const DeformationsSnapshot>& snapshot) {
+    if (!snapshot) {
+        return nullptr;
+    }
+
+    if (cache_.containsSnapshot(*snapshot)) {
+        return cache_.snapshotMesh(*snapshot);
+    }
+
+    std::shared_future<MeshSnapshotData> mesh_data_future;
     {
-        std::lock_guard<std::mutex> lock(meshes_mutex_);
-        meshes_[new_snapshot->hash()] = future_mesh;
-        latest_snapshots_[mesh_id] = new_snapshot;
+        std::shared_lock lock(processing_meshes_mutex_);
+        auto it = processing_meshes_data_.find(snapshot->hash());
+        if (it == processing_meshes_data_.end()) {
+            std::cerr << "There is no mesh for the given snapshot to wait.\n";
+            return nullptr;
+        }
+        mesh_data_future = it->second;
     }
 
-    return future_mesh;
+    return mesh_data_future.get().mesh;
 }
 
-
-sptr<Mesh> DeformationController::latestMesh(id_t mesh_id) const {
-    auto snapshot = latestSnapshot(mesh_id);
-    if (!snapshot) {
-        return nullptr;
-    }
-    return snapshotMesh(snapshot);
-}
-
-sptr<DeformationsSnapshot> DeformationController::latestSnapshot(id_t mesh_id) const {
-    std::lock_guard<std::mutex> lock(meshes_mutex_);
-    auto snapshot_it = latest_snapshots_.find(mesh_id);
-    if (snapshot_it == latest_snapshots_.end()) {
-        return nullptr;
-    }
-
-    return snapshot_it->second;
-}
-
-sptr<Mesh> DeformationController::snapshotMesh(const sptr<DeformationsSnapshot>& snapshot) const {
-    if (!snapshot) {
-        return nullptr;
-    }
-
-    auto snapshot_hash = snapshot->hash();
-    auto mesh_it = meshes_.find(snapshot_hash);
-    if (mesh_it == meshes_.end()) {
-        return nullptr;
-    }
-
-    auto& mesh_future = mesh_it->second;
-    if (mesh_future.valid() && mesh_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-        return mesh_future.get();
-    }
-
-    return nullptr;
-}
-
-sptr<Mesh> DeformationController::waitSnapshotMesh(const sptr<DeformationsSnapshot>& snapshot) {
-    if (!snapshot) {
-        return nullptr;
-    }
-
-    auto snapshot_hash = snapshot->hash();
-    auto it = meshes_.find(snapshot_hash);
-    if (it == meshes_.end()) {
-        return nullptr;
-    }
-
-    return it->second.get();
-}
-
-bool DeformationController::isMeshReady(const sptr<DeformationsSnapshot>& snapshot) const {
+bool DeformationController::isMeshReady(const sptr<const DeformationsSnapshot>& snapshot) const {
     if (!snapshot) {
         return false;
     }
 
-    return snapshotMesh(snapshot) != nullptr;
-}
-void DeformationController::addMesh(sptr<Mesh> mesh) {
-    if (!mesh) return;
-
-    auto snapshot = std::make_shared<DeformationsSnapshot>(mesh->id(), nullptr, nullptr);
-
-    {
-        std::lock_guard<std::mutex> lock(meshes_mutex_);
-
-        std::promise<sptr<Mesh>> promise;
-        promise.set_value(mesh);
-        meshes_[snapshot->hash()] = promise.get_future().share();
-
-        latest_snapshots_[mesh->id()] = snapshot;
+    if (cache_.containsSnapshot(*snapshot)) {
+        return true;
     }
+
+    std::shared_lock lock(processing_meshes_mutex_);
+    return processing_meshes_data_.contains(snapshot->hash());
+}
+
+void DeformationController::addMesh(sptr<const Mesh> mesh) {
+    if (!mesh) {
+        std::cerr << "The given mesh is invalid.\n";
+        return;
+    }
+
+    cache_.addBaseMesh(mesh);
 }

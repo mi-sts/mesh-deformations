@@ -36,8 +36,8 @@ public:
     id_t id() override { return 2; }
 
 private:
-    sptr<MatrixX3f> getDeformedVertices(sptr<Mesh> mesh, IDeformationParams& params) override {
-        auto smoothing_params = dynamic_cast<EdgeSmoothingParams*>(&params);
+    sptr<MatrixX3f> getDeformedVertices(sptr<const Mesh> mesh, const IDeformationParams& params) override {
+        auto smoothing_params = dynamic_cast<const EdgeSmoothingParams*>(&params);
         if (!smoothing_params) throw std::runtime_error("Invalid params for EdgeSmoothingDeformation");
 
         const float alpha = smoothing_params->factor();

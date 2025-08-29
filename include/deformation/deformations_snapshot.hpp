@@ -9,8 +9,8 @@ class IDeformationParams;
 
 class DeformationsSnapshot {
 public:
-    explicit DeformationsSnapshot(id_t mesh_id, sptr<IDeformationParams> new_params = nullptr,
-                                  sptr<DeformationsSnapshot> parent_snapshot = nullptr)
+    explicit DeformationsSnapshot(id_t mesh_id, sptr<const IDeformationParams> new_params = nullptr,
+                                  sptr<const DeformationsSnapshot> parent_snapshot = nullptr)
         : mesh_id_(mesh_id),
           current_deformation_(std::move(new_params)),
           parent_snapshot_(std::move(parent_snapshot)) {
@@ -25,6 +25,6 @@ public:
 private:
     id_t mesh_id_;
     mutable std::optional<size_t> cached_hash_;
-    sptr<DeformationsSnapshot> parent_snapshot_;
-    sptr<IDeformationParams> current_deformation_;
+    sptr<const DeformationsSnapshot> parent_snapshot_;
+    sptr<const IDeformationParams> current_deformation_;
 };

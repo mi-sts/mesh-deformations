@@ -13,6 +13,7 @@ public:
     Mesh(const MatrixX3f& vertices, const MatrixX3i& faces, const MatrixX3f& vertices_normals,
          const MatrixX3f& faces_normals)
         : id_(getId()),
+          family_id_(getFamilyId()),
           vertices_(std::make_shared<MatrixX3f>(vertices)),
           faces_(std::make_shared<MatrixX3i>(faces)),
           vertices_normals_(std::make_shared<MatrixX3f>(vertices_normals)),
@@ -31,18 +32,19 @@ public:
     Mesh(const MatrixX3f& vertices, const MatrixX3i& faces)
         : Mesh(vertices, faces, calculateVerticesNormals(vertices, faces), calculateFacesNormals(vertices, faces)) {}
 
-    Mesh(const Mesh& other, const MatrixX3f& new_vertices) : id_(getId()) {
-        faces_ = other.faces_;
-        vertices_neighbours_ = other.vertices_neighbours_;
-
-        vertices_ = std::make_shared<MatrixX3f>(new_vertices);
-        vertices_normals_ = std::make_shared<MatrixX3f>(calculateVerticesNormals(new_vertices, *other.faces_));
-        faces_normals_ = std::make_shared<MatrixX3f>(calculateFacesNormals(new_vertices, *other.faces_));
-    }
+    Mesh(const Mesh& other, const MatrixX3f& new_vertices)
+        : id_(getId()),
+          family_id_(other.family_id_),
+          faces_(other.faces_),
+          vertices_neighbours_(other.vertices_neighbours_),
+          vertices_(std::make_shared<MatrixX3f>(new_vertices)),
+          vertices_normals_(std::make_shared<MatrixX3f>(calculateVerticesNormals(new_vertices, *other.faces_))),
+          faces_normals_(std::make_shared<MatrixX3f>(calculateFacesNormals(new_vertices, *other.faces_))) {}
 
     Mesh(const Mesh& other) : Mesh(other, *other.vertices_) {}
 
     id_t id() const noexcept;
+    id_t family_id() const noexcept;
     sptr<const MatrixX3f> vertices() const noexcept;
     sptr<const MatrixX3i> faces() const noexcept;
     sptr<const MatrixX3f> verticesNormals() const noexcept;
@@ -53,12 +55,14 @@ public:
 
 private:
     static id_t getId();
+    static id_t getFamilyId();
     static MatrixX3f calculateVerticesNormals(const MatrixX3f& vertices, const MatrixX3i& faces);
     static MatrixX3f calculateFacesNormals(const MatrixX3f& vertices, const MatrixX3i& faces);
     static SparseMatrix<int> calculateVerticesNeighbours(const MatrixX3i& faces, uint64_t vertices_count);
 
 private:
     inline static id_t id_counter_{0u};
+    inline static id_t family_id_counter_{0u};
 
     sptr<MatrixX3f> vertices_;
     sptr<MatrixX3f> vertices_normals_;
@@ -69,4 +73,5 @@ private:
     sptr<SparseMatrix<int>> vertices_neighbours_;
 
     id_t id_;
+    id_t family_id_;
 };

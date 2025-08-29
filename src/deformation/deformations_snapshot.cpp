@@ -4,27 +4,10 @@
 #include "utils/hashes.hpp"
 
 #include <deque>
+#include <iostream>
 
 id_t DeformationsSnapshot::mesh_id() const noexcept {
     return mesh_id_;
-}
-
-std::vector<sptr<IDeformationParams>> DeformationsSnapshot::deformations() const noexcept {
-    const DeformationsSnapshot* current_snapshot = this;
-    std::deque<const DeformationsSnapshot*> snapshots{this};
-    while (current_snapshot->parent_snapshot_ != nullptr) {
-        auto parent_snapshot = &(*current_snapshot->parent_snapshot_);
-        snapshots.push_front(parent_snapshot);
-        current_snapshot = parent_snapshot;
-    }
-
-    std::vector<sptr<IDeformationParams>> deformations;
-    deformations.reserve(snapshots.size());
-    for (int i = 0; i < snapshots.size(); ++i) {
-        deformations[i] = snapshots[i]->current_deformation_;
-    }
-
-    return deformations;
 }
 
 size_t DeformationsSnapshot::hash() const noexcept {

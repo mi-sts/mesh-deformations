@@ -1,21 +1,71 @@
 #include "cache/deformations_cache.hpp"
 
 #include "deformation/deformations_snapshot.hpp"
+#include "structures/mesh.hpp"
 
+#include <deque>
+#include <iostream>
 #include <mutex>
 
-void DeformationsCache::add(const sptr<DeformationsSnapshot>& snapshot) {
-    std::unique_lock lock(snapshots_mutex_);
-    snapshots_[snapshot->hash()] = snapshot;
+void DeformationsCache::addSnapshotMesh(sptr<const Mesh> mesh, sptr<const DeformationsSnapshot> snapshot) {
+    if (snapshot == nullptr) {
+        std::cerr << "The adding snapshot is invalid.\n";
+    }
+
+    std::lock_guard<std::shared_mutex> lock(meshes_mutex_);
+
+    meshes_data_[snapshot->hash()] = MeshSnapshotData{.mesh = mesh, .snapshot = snapshot};
+    if (!meshes_deformations_.contains(mesh->family_id())) {
+        meshes_deformations_[mesh->family_id()] = std::deque<sptr<const DeformationsSnapshot>>();
+    }
+    meshes_deformations_[mesh->family_id()].push_back(snapshot);
 }
 
-sptr<DeformationsSnapshot> DeformationsCache::get(size_t hash) const noexcept {
-    std::shared_lock lock(snapshots_mutex_);
-    auto it = snapshots_.find(hash);
-    return it != snapshots_.end() ? it->second : nullptr;
+void DeformationsCache::addBaseMesh(sptr<const Mesh> mesh) {
+    {
+        std::lock_guard<std::shared_mutex> lock(meshes_mutex_);
+
+        if (meshes_deformations_.contains(mesh->family_id())) {
+            std::cerr << "Base mesh for the given family id is already exist.\n";
+            return;
+        }
+    }
+
+    auto base_snapshot = std::make_shared<DeformationsSnapshot>(mesh->id());
+    addSnapshotMesh(mesh, base_snapshot);
 }
 
-bool DeformationsCache::contains(size_t hash) const noexcept {
-    std::shared_lock lock(snapshots_mutex_);
-    return snapshots_.contains(hash);
+sptr<const DeformationsSnapshot> DeformationsCache::latestSnapshot(id_t mesh_family_id) const {
+    std::shared_lock<std::shared_mutex> lock(meshes_mutex_);
+
+    if (!meshes_deformations_.contains(mesh_family_id)) {
+        std::cerr << "There is no mashes for the given family id.\n";
+        return nullptr;
+    }
+
+    return meshes_deformations_.at(mesh_family_id).back();
+}
+
+sptr<const Mesh> DeformationsCache::latestMesh(id_t mesh_family_id) const {
+    auto latest_snapshot = latestSnapshot(mesh_family_id);
+    if (!meshes_data_.contains(latest_snapshot->hash())) {
+        std::cerr << "There is no mesh with the given hash.\n";
+        return nullptr;
+    }
+
+    return meshes_data_.at(latest_snapshot->hash()).mesh;
+}
+
+sptr<const Mesh> DeformationsCache::snapshotMesh(const DeformationsSnapshot& snapshot) const {
+    std::shared_lock<std::shared_mutex> lock(meshes_mutex_);
+    if (!containsSnapshot(snapshot)) {
+        std::cerr << "There is no mashes with the given snapshot.\n";
+        return nullptr;
+    }
+
+    return meshes_data_.at(snapshot.hash()).mesh;
+}
+
+bool DeformationsCache::containsSnapshot(const DeformationsSnapshot& snapshot) const {
+    return meshes_data_.contains(snapshot.hash());
 }
