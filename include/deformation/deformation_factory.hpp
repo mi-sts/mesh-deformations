@@ -13,12 +13,12 @@ public:
     static sptr<IDeformation> create(id_t id) {
         auto it = deformations_.find(id);
         if (it == deformations_.end()) {
-            throw std::runtime_error("Deformation ID not found");
+            throw std::runtime_error("Deformation ID is not found");
         }
         return it->second;
     }
 
 private:
-    static std::unordered_map<id_t, sptr<IDeformation>> deformations_;
-    static std::mutex mutex_;
+    inline static std::unordered_map<id_t, sptr<IDeformation>> deformations_;
+    inline static std::mutex mutex_;
 };

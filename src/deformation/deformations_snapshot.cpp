@@ -1,7 +1,31 @@
-#pragma once
-
 #include "deformation/deformations_snapshot.hpp"
+
+#include "deformation/deformation_params_interface.hpp"
 #include "utils/hashes.hpp"
+
+#include <deque>
+
+id_t DeformationsSnapshot::mesh_id() const noexcept {
+    return mesh_id_;
+}
+
+std::vector<sptr<IDeformationParams>> DeformationsSnapshot::deformations() const noexcept {
+    const DeformationsSnapshot* current_snapshot = this;
+    std::deque<const DeformationsSnapshot*> snapshots{this};
+    while (current_snapshot->parent_snapshot_ != nullptr) {
+        auto parent_snapshot = &(*current_snapshot->parent_snapshot_);
+        snapshots.push_front(parent_snapshot);
+        current_snapshot = parent_snapshot;
+    }
+
+    std::vector<sptr<IDeformationParams>> deformations;
+    deformations.reserve(snapshots.size());
+    for (int i = 0; i < snapshots.size(); ++i) {
+        deformations[i] = snapshots[i]->current_deformation_;
+    }
+
+    return deformations;
+}
 
 size_t DeformationsSnapshot::hash() const noexcept {
     if (cached_hash_) {
@@ -13,10 +37,10 @@ size_t DeformationsSnapshot::hash() const noexcept {
         hash = std::hash<id_t>{}(mesh_id_);
     } else {
         hash = std::hash<id_t>{}(current_deformation_->deformation_id());
-        hash = hash_combine(hash, current_deformation_->hash());
+        hash = hashCombine(hash, current_deformation_->hash());
 
         if (parent_snapshot_) {
-            hash = hash_combine(parent_snapshot_->hash(), hash);
+            hash = hashCombine(parent_snapshot_->hash(), hash);
         }
         cached_hash_ = hash;
     }

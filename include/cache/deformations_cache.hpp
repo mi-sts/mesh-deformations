@@ -1,9 +1,10 @@
 #pragma once
 
-#include "deformation/deformations_snapshot.hpp"
 #include "deformations_cache_interface.hpp"
 
 #include <shared_mutex>
+
+class DeformationSnapshot;
 
 class DeformationsCache : public IDeformationsCache {
 public:

@@ -3,6 +3,7 @@
 #include "utils/data_types.hpp"
 
 #include <atomic>
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -11,7 +12,8 @@ class Mesh {
 public:
     Mesh(const MatrixX3f& vertices, const MatrixX3i& faces, const MatrixX3f& vertices_normals,
          const MatrixX3f& faces_normals)
-        : vertices_(std::make_shared<MatrixX3f>(vertices)),
+        : id_(getId()),
+          vertices_(std::make_shared<MatrixX3f>(vertices)),
           faces_(std::make_shared<MatrixX3i>(faces)),
           vertices_normals_(std::make_shared<MatrixX3f>(vertices_normals)),
           faces_normals_(std::make_shared<MatrixX3f>(faces_normals)),
@@ -29,9 +31,23 @@ public:
     Mesh(const MatrixX3f& vertices, const MatrixX3i& faces)
         : Mesh(vertices, faces, calculateVerticesNormals(vertices, faces), calculateFacesNormals(vertices, faces)) {}
 
+    Mesh(const Mesh& other, const MatrixX3f& new_vertices) : id_(getId()) {
+        faces_ = other.faces_;
+        vertices_neighbours_ = other.vertices_neighbours_;
+
+        vertices_ = std::make_shared<MatrixX3f>(new_vertices);
+        vertices_normals_ = std::make_shared<MatrixX3f>(calculateVerticesNormals(new_vertices, *other.faces_));
+        faces_normals_ = std::make_shared<MatrixX3f>(calculateFacesNormals(new_vertices, *other.faces_));
+    }
+
+    Mesh(const Mesh& other) : Mesh(other, *other.vertices_) {}
+
     id_t id() const noexcept;
     sptr<const MatrixX3f> vertices() const noexcept;
     sptr<const MatrixX3i> faces() const noexcept;
+    sptr<const MatrixX3f> verticesNormals() const noexcept;
+    sptr<const MatrixX3f> facesNormals() const noexcept;
+    sptr<const SparseMatrix<int>> verticesNeighbours() const noexcept;
 
     bool operator==(const Mesh& other) const noexcept;
 
@@ -54,5 +70,3 @@ private:
 
     id_t id_;
 };
-
-using mesh_ptr_t = sptr<Mesh>;

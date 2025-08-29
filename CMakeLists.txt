@@ -7,6 +7,7 @@ list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include(libigl)
 igl_include(glfw)
+include(xxhash)
 
 add_executable(mesh-deformations main.cpp
         include/structures/mesh.hpp
@@ -15,7 +16,6 @@ add_executable(mesh-deformations main.cpp
         include/utils/hashes.hpp
         include/deformation/deformation_interface.hpp
         include/deformation/deformation_params_interface.hpp
-        include/deformation/deformation_task_interface.hpp
         include/deformation/deformations_snapshot.hpp
         src/deformation/deformations_snapshot.cpp
         include/cache/deformations_cache.hpp
@@ -27,6 +27,8 @@ add_executable(mesh-deformations main.cpp
         src/deformation/deformation_controller.cpp
         include/utils/deformation_registry.hpp
         include/deformation/deformation_factory.hpp
+        include/deformation/vertex_offset_deformation.hpp
+        include/deformation/edge_smoothing_deformation.hpp
 )
 target_include_directories(mesh-deformations PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(mesh-deformations PUBLIC igl::core igl::glfw)
+target_link_libraries(mesh-deformations PUBLIC igl::core igl::glfw xxhash)

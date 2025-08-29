@@ -1,5 +1,7 @@
 #pragma once
 
+#include "deformation/deformation_factory.hpp"
+
 #define REGISTER_DEFORMATION(CLASS, ID) \
     namespace { \
         struct CLASS##Registrar { \

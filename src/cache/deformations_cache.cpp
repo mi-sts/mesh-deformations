@@ -1,4 +1,7 @@
 #include "cache/deformations_cache.hpp"
+
+#include "deformation/deformations_snapshot.hpp"
+
 #include <mutex>
 
 void DeformationsCache::add(const sptr<DeformationsSnapshot>& snapshot) {

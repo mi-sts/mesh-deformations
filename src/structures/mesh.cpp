@@ -1,4 +1,5 @@
 #include "structures/mesh.hpp"
+#include "utils/data_types.hpp"
 
 #include <igl/per_face_normals.h>
 #include <igl/per_vertex_normals.h>
@@ -15,6 +16,19 @@ sptr<const MatrixX3f> Mesh::vertices() const noexcept {
 sptr<const MatrixX3i> Mesh::faces() const noexcept {
     return faces_;
 }
+
+sptr<const MatrixX3f> Mesh::verticesNormals() const noexcept {
+    return vertices_normals_;
+}
+
+sptr<const MatrixX3f> Mesh::facesNormals() const noexcept {
+    return faces_normals_;
+}
+
+sptr<const SparseMatrix<int>> Mesh::verticesNeighbours() const noexcept {
+    return vertices_neighbours_;
+}
+
 
 bool Mesh::operator==(const Mesh& other) const noexcept {
     return id_ == other.id_;

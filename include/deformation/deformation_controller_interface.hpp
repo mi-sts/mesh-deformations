@@ -5,14 +5,14 @@
 #include <future>
 
 class DeformationsSnapshot;
-class IDeformationAlgorithm;
+class Mesh;
 class IDeformationParams;
 
 class IDeformationController {
 public:
     virtual ~IDeformationController() = default;
 
-    virtual std::future<sptr<DeformationsSnapshot>> applyDeformation(id_t mesh_id, sptr<IDeformationParams> new_deformation) = 0;
+    virtual std::shared_future<sptr<Mesh>> applyDeformation(id_t mesh_id, sptr<IDeformationParams> params) = 0;
     virtual sptr<DeformationsSnapshot> latestSnapshot(id_t mesh_id) const = 0;
     virtual sptr<Mesh> latestMesh(id_t mesh_id) const = 0;
 

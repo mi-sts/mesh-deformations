@@ -8,9 +8,7 @@
 
 class ThreadPool {
 public:
-    explicit ThreadPool(size_t threads = std::thread::hardware_concurrency())
-        : stop_(false)
-    {
+    explicit ThreadPool(size_t threads = std::thread::hardware_concurrency()) : stop_(false) {
         for (size_t i = 0; i < threads; ++i) {
             workers_.emplace_back([this]() {
                 while (true) {
@@ -33,19 +31,17 @@ public:
         }
     }
 
-    template <class F, class... Args>
-    auto enqueue(F&& f, Args&&... args) -> std::future<typename std::invoke_result_t<F, Args...>> {
-        using return_type = typename std::invoke_result_t<F, Args...>;
+    template <class F>
+    auto enqueue(F&& f) -> std::future<typename std::invoke_result_t<F>> {
+        using return_type = typename std::invoke_result_t<F>;
 
-        auto task = std::make_shared<std::packaged_task<return_type()>>(
-                std::bind(std::forward<F>(f), std::forward<Args>(args)...)
-        );
+        auto task = std::make_shared<std::packaged_task<return_type()>>(std::forward<F>(f));
 
         std::future<return_type> res = task->get_future();
         {
             std::unique_lock<std::mutex> lock(mutex_);
             if (stop_) {
-                throw std::runtime_error("enqueue on stopped ThreadPool");
+                throw std::runtime_error("Enqueue call on stopped ThreadPool");
             }
             tasks_.emplace([task]() { (*task)(); });
         }
@@ -59,7 +55,7 @@ public:
             stop_ = true;
         }
         cond_var_.notify_all();
-        for (std::thread &worker : workers_)
+        for (std::thread& worker: workers_)
             worker.join();
     }
 

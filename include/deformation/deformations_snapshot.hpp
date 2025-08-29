@@ -1,10 +1,11 @@
 #pragma once
 
-#include "deformation_params_interface.hpp"
 #include "utils/data_types.hpp"
 
 #include <optional>
 #include <utility>
+
+class IDeformationParams;
 
 class DeformationsSnapshot {
 public:
@@ -12,10 +13,11 @@ public:
                                   sptr<DeformationsSnapshot> parent_snapshot = nullptr)
         : mesh_id_(mesh_id),
           current_deformation_(std::move(new_params)),
-          parent_snapshot_(std::move(parent_snapshot)) {}
+          parent_snapshot_(std::move(parent_snapshot)) {
+    }
 
     id_t mesh_id() const noexcept;
-    const std::vector<IDeformationParams>& deformations() const noexcept;
+    std::vector<sptr<IDeformationParams>> deformations() const noexcept;
 
     size_t hash() const noexcept;
     bool operator==(const DeformationsSnapshot& other) const noexcept;
