@@ -3,6 +3,9 @@ project(mesh-deformations)
 
 set(CMAKE_CXX_STANDARD 20)
 
+set(MODELS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/models)
+set(MODELS_TARGET_DIR $<TARGET_FILE_DIR:mesh-deformations>/models)
+
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include(libigl)
@@ -29,6 +32,21 @@ add_executable(mesh-deformations main.cpp
         include/deformation/deformation_factory.hpp
         include/deformation/vertex_offset_deformation.hpp
         include/deformation/edge_smoothing_deformation.hpp
+        include/utils/filesystem.hpp
 )
 target_include_directories(mesh-deformations PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(mesh-deformations PUBLIC igl::core igl::glfw xxhash)
+
+file(GLOB MODELS_FILES
+        "${MODELS_DIR}/*.obj"
+)
+
+foreach(model ${MODELS_FILES})
+    add_custom_command(
+            TARGET mesh-deformations POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${MODELS_TARGET_DIR}
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${model}
+            ${MODELS_TARGET_DIR}/
+    )
+endforeach()

@@ -6,7 +6,7 @@
 #include "structures/mesh.hpp"
 
 std::shared_future<MeshSnapshotData> DeformationController::applyDeformation(id_t mesh_family_id,
-                                                                       sptr<const IDeformationParams> params) {
+                                                                             sptr<const IDeformationParams> params) {
     sptr<const DeformationsSnapshot> prev_snapshot = latestSnapshot(mesh_family_id);
     sptr<DeformationsSnapshot> new_snapshot =
             std::make_shared<DeformationsSnapshot>(mesh_family_id, params, prev_snapshot);
@@ -20,7 +20,8 @@ std::shared_future<MeshSnapshotData> DeformationController::applyDeformation(id_
                             return MeshSnapshotData{};
                         }
 
-                        auto future_mesh = VertexOffsetDeformation().applyDeformation(parent_mesh, *params);
+                        auto future_mesh = DeformationFactory::create(params->deformation_id())
+                                                   ->applyDeformation(parent_mesh, *params, threadpool_);
                         cache_.addSnapshotMesh(future_mesh, new_snapshot);
                         return MeshSnapshotData{.mesh = future_mesh, .snapshot = new_snapshot};
                     })
@@ -28,6 +29,7 @@ std::shared_future<MeshSnapshotData> DeformationController::applyDeformation(id_
 
     std::lock_guard lock(processing_meshes_mutex_);
     processing_meshes_data_[new_snapshot->hash()] = mesh_future;
+
     return mesh_future;
 }
 

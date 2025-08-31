@@ -9,8 +9,8 @@
 
 class ThreadPool {
 public:
-    explicit ThreadPool(size_t threads = std::thread::hardware_concurrency()) : stop_(false) {
-        for (size_t i = 0; i < threads; ++i) {
+    explicit ThreadPool(uint32_t threads = std::thread::hardware_concurrency()) : stop_(false) {
+        for (uint32_t i = 0; i < threads; ++i) {
             workers_.emplace_back([this]() {
                 while (true) {
                     std::function<void()> task;
@@ -48,6 +48,10 @@ public:
         }
         cond_var_.notify_one();
         return res;
+    }
+
+    uint32_t workersCount() {
+        return static_cast<uint32_t>(workers_.size());
     }
 
     ~ThreadPool() {
