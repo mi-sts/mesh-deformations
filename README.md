@@ -25,7 +25,6 @@ mkdir build
 cmake -B build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
 cmake --build build/
 ```
-The main executable will be located in the build folder.
 ------------------------------------------------------------------------
 
 Build with Unit and Performance Tests
