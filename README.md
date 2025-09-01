@@ -15,7 +15,7 @@ Build Instructions
 
 1. Clone the repository
 ```
-git clone https://github.com/yourname/mesh-deformations.git
+git clone https://github.com/mi-sts/mesh-deformations.git
 cd mesh-deformations
 ```
 2. Configure and build
