@@ -7,7 +7,7 @@ This project demonstrates mesh deformation algorithms (vertex offset and edge sm
 Requirements
 
 -   CMake >= 3.10
--   C++17 compatible compiler (GCC, Clang, or MSVC)
+-   C++17 compatible compiler
 -   [libigl](https://github.com/libigl/libigl), [xxHash](https://github.com/Cyan4973/xxHash) and [catch2](https://github.com/catchorg/Catch2.git) (fetched automatically via CMake)
 
 ------------------------------------------------------------------------
