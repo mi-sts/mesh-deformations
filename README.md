@@ -33,7 +33,7 @@ By default, unit and performance tests are disabled.
 To enable them, pass the BUILD_TESTING=ON option:
 
 This will build: 
-- **mesh-deformations** — a demo application that visualizes deformations on test meshes. Press SPACE to sequentially apply deformations. **Not used for benchmarking, only for demonstration purposes.**
+- **mesh-deformations** — a demo application that visualizes deformations on test meshes. Press **SPACE** to sequentially apply deformations. **Not used for benchmarking, only for demonstration purposes.**
 - **mesh-deformations-tests** — unit tests for verifying deformation algorithms.
 - **mesh-deformations-benchmark** — performance benchmark that measures efficiency of deformation algorithms. The Vertex Offset and Edge Smooting deformations are applied in parallel sequentially. **The benchmark can be configured via config.txt in a build folder of the mesh-deformations-benchmark**.
 
