@@ -40,17 +40,20 @@ public:
         startMeasurement();
         auto deformations_count = config_data_.max_parallel_deformations;
         for (int i = 0; i < deformations_count; ++i) {
+            ++remaining_deformations_pipelines_;
             startDeformation();
         }
     }
 
 private:
     void reset() {
+        is_measurement_stopped_ = false;
         completed_deformations_.store(0);
     }
 
     void printBenchmarkResult(uint64_t time_millis) {
         std::cout << "Benchmark finished in " << static_cast<float>(time_millis) / 1000.0f << " seconds.\n";
+        std::cout << "Deformation class name: " << config_data_.deformation_class_name << ".\n";
         std::cout << "Number of parallel deformations: " << config_data_.max_parallel_deformations << ".\n";
         std::cout << "Number of completed deformations: " << completed_deformations_
                   << ".\n";
@@ -78,8 +81,13 @@ private:
                 startDeformation();
             } else {
                 --remaining_deformations_pipelines_;
-                if (remaining_deformations_pipelines_ == 0) {
+                if (remaining_deformations_pipelines_ == 0 && !is_measurement_stopped_) {
+                    std::lock_guard lock(stop_measurement_mutex_);
+                    if (is_measurement_stopped_)
+                        return ;
+
                     stopMeasurement();
+                    is_measurement_stopped_ = true;
                 }
             }
         });
@@ -115,4 +123,7 @@ private:
     sptr<IDeformationParams> deformation_params_;
     sptr<VertexOffsetParams> vertex_offset_params_;
     sptr<EdgeSmoothingParams> edge_smoothing_params_;
+
+    std::mutex stop_measurement_mutex_;
+    bool is_measurement_stopped_{true};
 };

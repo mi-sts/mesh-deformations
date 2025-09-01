@@ -1,8 +1,10 @@
-#include <catch2/catch_test_macros.hpp>
 #include "deformation/vertex_offset_deformation.hpp"
 #include "deformation/edge_smoothing_deformation.hpp"
 #include "structures/mesh.hpp"
 #include "threadpool/threadpool.hpp"
+
+#include <catch2/catch_test_macros.hpp>
+#include <memory>
 
 TEST_CASE("Vertex offset deformation applies correct offsets", "[deformation]") {
     MatrixX3f vertices(3, 3);
@@ -15,8 +17,8 @@ TEST_CASE("Vertex offset deformation applies correct offsets", "[deformation]") 
 
     auto mesh_ptr = std::make_shared<Mesh>(vertices, faces);
 
-    MatrixX3f offsets(3, 3);
-    offsets << 1, 1, 1,
+    auto offsets = std::make_shared<MatrixX3f>(3, 3);
+    *offsets << 1, 1, 1,
             1, 1, 1,
             1, 1, 1;
 
