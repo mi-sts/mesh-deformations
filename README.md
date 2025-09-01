@@ -8,6 +8,7 @@ Requirements
 
 -   CMake >= 3.10
 -   C++17 compatible compiler (GCC, Clang, or MSVC)
+-   [libigl](https://github.com/libigl/libigl) and [xxHash](https://github.com/Cyan4973/xxHash) (fetched automatically via CMake)
 
 ------------------------------------------------------------------------
 
