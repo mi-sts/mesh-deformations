@@ -21,7 +21,7 @@ cd mesh-deformations
 2. Configure and build
 ```
 mkdir build
-cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+cmake -B build/ -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
 cmake --build build/
 ```
 The main executable will be located in:
@@ -41,6 +41,8 @@ This will build:
 - **mesh-deformations-benchmark** — performance benchmark that measures efficiency of deformation algorithms. The Vertex Offset and Edge Smooting deformations are applied in parallel sequentially. **The benchmark can be configured via config.txt in a build folder of the mesh-deformations-benchmark**.
 
 ------------------------------------------------------------------------
+### Executable paths may differ on different compilers.
+------------------------------------------------------------------------
 
 Running Unit Tests
 
@@ -55,7 +57,7 @@ Running Benchmark
 
 After building with -DBUILD_TESTING=ON:
 ```
-cd build/benchmark/ (may differ on different compilers)
+cd build/benchmark/
 ./mesh-deformations-benchmark.exe
 ```
 ------------------------------------------------------------------------
