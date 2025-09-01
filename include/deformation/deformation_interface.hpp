@@ -9,7 +9,7 @@ class IDeformation {
 public:
     virtual ~IDeformation() = default;
 
-    virtual id_t id() = 0;
+    virtual ID_t id() = 0;
     sptr<Mesh> applyDeformation(sptr<const Mesh> mesh, const IDeformationParams& params, ThreadPool& threadpool) const {
         auto deformed_vertices = getDeformedVertices(mesh, params, threadpool);
 

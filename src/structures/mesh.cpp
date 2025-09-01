@@ -5,11 +5,11 @@
 #include <igl/per_face_normals.h>
 #include <igl/per_vertex_normals.h>
 
-id_t Mesh::id() const noexcept {
+ID_t Mesh::id() const noexcept {
     return id_;
 }
 
-id_t Mesh::family_id() const noexcept {
+ID_t Mesh::family_id() const noexcept {
     return family_id_;
 }
 
@@ -46,11 +46,11 @@ bool Mesh::operator==(const Mesh& other) const noexcept {
     return id_ == other.id_;
 }
 
-id_t Mesh::getId() {
+ID_t Mesh::getId() {
     return id_counter_++;
 }
 
-id_t Mesh::getFamilyId() {
+ID_t Mesh::getFamilyId() {
     return family_id_counter_++;
 }
 

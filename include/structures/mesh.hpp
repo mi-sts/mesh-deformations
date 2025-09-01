@@ -39,8 +39,8 @@ public:
           vertices_neighbours_(other.vertices_neighbours_),
           vertices_(std::move(new_vertices)) {}
 
-    id_t id() const noexcept;
-    id_t family_id() const noexcept;
+    ID_t id() const noexcept;
+    ID_t family_id() const noexcept;
     sptr<const MatrixX3f> vertices() const noexcept;
     sptr<const MatrixX3i> faces() const noexcept;
     sptr<const MatrixX3f> verticesNormals() noexcept;
@@ -50,15 +50,15 @@ public:
     bool operator==(const Mesh& other) const noexcept;
 
 private:
-    static id_t getId();
-    static id_t getFamilyId();
+    static ID_t getId();
+    static ID_t getFamilyId();
     static sptr<MatrixX3f> calculateVerticesNormals(const MatrixX3f& vertices, const MatrixX3i& faces);
     static sptr<MatrixX3f> calculateFacesNormals(const MatrixX3f& vertices, const MatrixX3i& faces);
     static sptr<std::vector<std::vector<int>>> calculateVerticesNeighbours(const MatrixX3i& faces, uint64_t vertices_count);
 
 private:
-    inline static id_t id_counter_{0u};
-    inline static id_t family_id_counter_{0u};
+    inline static ID_t id_counter_{0u};
+    inline static ID_t family_id_counter_{0u};
 
     sptr<MatrixX3f> vertices_;
     sptr<MatrixX3f> vertices_normals_;
@@ -68,6 +68,6 @@ private:
     sptr<MatrixX3i> faces_;
     sptr<std::vector<std::vector<int>>> vertices_neighbours_;
 
-    id_t id_;
-    id_t family_id_;
+    ID_t id_;
+    ID_t family_id_;
 };

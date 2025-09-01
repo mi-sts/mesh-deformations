@@ -17,7 +17,7 @@ public:
         }
     }
 
-    id_t deformation_id() const noexcept override {
+    ID_t deformation_id() const noexcept override {
         return 2;
     }
 
@@ -50,7 +50,7 @@ private:
 
 class EdgeSmoothingDeformation : public IDeformation {
 public:
-    id_t id() override {
+    ID_t id() override {
         return 2;
     }
 

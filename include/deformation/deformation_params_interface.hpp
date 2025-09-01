@@ -8,7 +8,7 @@ class IDeformationParams {
 public:
     virtual ~IDeformationParams() = default;
 
-    virtual id_t deformation_id() const noexcept = 0;
+    virtual ID_t deformation_id() const noexcept = 0;
     virtual size_t hash() const noexcept = 0;
     virtual bool operator==(const IDeformationParams& other) const = 0;
 };

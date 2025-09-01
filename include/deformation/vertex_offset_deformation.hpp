@@ -15,7 +15,7 @@ class VertexOffsetParams : public IDeformationParams {
 public:
     VertexOffsetParams(sptr<const MatrixX3f> offsets) : offsets_(std::move(offsets)) {}
 
-    id_t deformation_id() const noexcept override {
+    ID_t deformation_id() const noexcept override {
         return 1;
     }
 
@@ -42,7 +42,7 @@ private:
 
 class VertexOffsetDeformation : public IDeformation {
 public:
-    id_t id() override {
+    ID_t id() override {
         return 1;
     }
 

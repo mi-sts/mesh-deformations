@@ -9,7 +9,7 @@
 class Mesh;
 class DeformationsSnapshot;
 
-using id_t = uint64_t;
+using ID_t = uint64_t;
 
 template <typename T>
 using uptr = std::unique_ptr<T>;

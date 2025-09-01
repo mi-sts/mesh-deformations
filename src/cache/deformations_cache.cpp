@@ -36,7 +36,7 @@ void DeformationsCache::addBaseMesh(sptr<const Mesh> mesh) {
     addSnapshotMesh(mesh, base_snapshot);
 }
 
-sptr<const DeformationsSnapshot> DeformationsCache::latestSnapshot(id_t mesh_family_id) const {
+sptr<const DeformationsSnapshot> DeformationsCache::latestSnapshot(ID_t mesh_family_id) const {
     std::shared_lock<std::shared_mutex> lock(meshes_mutex_);
 
     if (!contains(meshes_deformations_, mesh_family_id)) {
@@ -47,7 +47,7 @@ sptr<const DeformationsSnapshot> DeformationsCache::latestSnapshot(id_t mesh_fam
     return meshes_deformations_.at(mesh_family_id).back();
 }
 
-sptr<const Mesh> DeformationsCache::latestMesh(id_t mesh_family_id) const {
+sptr<const Mesh> DeformationsCache::latestMesh(ID_t mesh_family_id) const {
     auto latest_snapshot = latestSnapshot(mesh_family_id);
     if (!contains(meshes_data_, latest_snapshot->hash())) {
         std::cerr << "There is no mesh with the given hash.\n";

@@ -10,11 +10,11 @@ class DeformationsSnapshot;
 class DeformationController : public IDeformationController {
 public:
     void addMesh(sptr<const Mesh> mesh) override;
-    std::shared_future<MeshSnapshotData> applyDeformation(id_t mesh_family_id,
+    std::shared_future<MeshSnapshotData> applyDeformation(ID_t mesh_family_id,
                                                           sptr<const IDeformationParams> params) override;
 
-    sptr<const Mesh> latestMesh(id_t mesh_family_id) const override;
-    sptr<const DeformationsSnapshot> latestSnapshot(id_t mesh_family_id) const override;
+    sptr<const Mesh> latestMesh(ID_t mesh_family_id) const override;
+    sptr<const DeformationsSnapshot> latestSnapshot(ID_t mesh_family_id) const override;
 
     sptr<const Mesh> waitSnapshotMesh(const sptr<const DeformationsSnapshot>& snapshot) override;
     bool isMeshReady(const sptr<const DeformationsSnapshot>& snapshot) const override;

@@ -5,7 +5,7 @@
 #include "structures/mesh.hpp"
 #include "utils/containers.hpp"
 
-std::shared_future<MeshSnapshotData> DeformationController::applyDeformation(id_t mesh_family_id,
+std::shared_future<MeshSnapshotData> DeformationController::applyDeformation(ID_t mesh_family_id,
                                                                              sptr<const IDeformationParams> params) {
     sptr<const DeformationsSnapshot> prev_snapshot = latestSnapshot(mesh_family_id);
     sptr<DeformationsSnapshot> new_snapshot =
@@ -34,11 +34,11 @@ std::shared_future<MeshSnapshotData> DeformationController::applyDeformation(id_
 }
 
 
-sptr<const Mesh> DeformationController::latestMesh(id_t mesh_family_id) const {
+sptr<const Mesh> DeformationController::latestMesh(ID_t mesh_family_id) const {
     return cache_.latestMesh(mesh_family_id);
 }
 
-sptr<const DeformationsSnapshot> DeformationController::latestSnapshot(id_t mesh_family_id) const {
+sptr<const DeformationsSnapshot> DeformationController::latestSnapshot(ID_t mesh_family_id) const {
     return cache_.latestSnapshot(mesh_family_id);
 }
 

@@ -6,7 +6,7 @@
 #include <deque>
 #include <iostream>
 
-id_t DeformationsSnapshot::mesh_id() const noexcept {
+ID_t DeformationsSnapshot::mesh_id() const noexcept {
     return mesh_id_;
 }
 
@@ -17,9 +17,9 @@ size_t DeformationsSnapshot::hash() const noexcept {
 
     size_t hash = 0U;
     if (current_deformation_ == nullptr) {
-        hash = std::hash<id_t>{}(mesh_id_);
+        hash = std::hash<ID_t>{}(mesh_id_);
     } else {
-        hash = std::hash<id_t>{}(current_deformation_->deformation_id());
+        hash = std::hash<ID_t>{}(current_deformation_->deformation_id());
         hash = hashCombine(hash, current_deformation_->hash());
 
         if (parent_snapshot_) {
