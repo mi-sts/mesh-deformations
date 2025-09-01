@@ -11,7 +11,11 @@ class EdgeSmoothingParams : public IDeformationParams {
 public:
     explicit EdgeSmoothingParams(float smoothing_factor, int iteration_count = 1)
         : smoothing_factor_(smoothing_factor),
-          iteration_count_(iteration_count) {}
+          iteration_count_(iteration_count) {
+        if (smoothing_factor < 0.0f || smoothing_factor > 1.0f) {
+            std::cerr << "Edge smoothing factor is out of the allowed range";
+        }
+    }
 
     id_t deformation_id() const noexcept override {
         return 2;
@@ -50,9 +54,8 @@ public:
         return 2;
     }
 
-private:
     sptr<MatrixX3f> getDeformedVertices(sptr<const Mesh> mesh, const IDeformationParams& params,
-                                        ThreadPool& thread_pool) override {
+                                        ThreadPool& thread_pool) const override {
         const auto* smoothing_params = dynamic_cast<const EdgeSmoothingParams*>(&params);
         if (!smoothing_params) {
             std::cerr << "Invalid deformation params for EdgeSmoothingDeformation.\n";

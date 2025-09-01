@@ -2,8 +2,8 @@
 
 #include "deformation/deformation_factory.hpp"
 #include "deformation/deformations_snapshot.hpp"
-#include "deformation/vertex_offset_deformation.hpp"
 #include "structures/mesh.hpp"
+#include "utils/containers.hpp"
 
 std::shared_future<MeshSnapshotData> DeformationController::applyDeformation(id_t mesh_family_id,
                                                                              sptr<const IDeformationParams> params) {
@@ -23,7 +23,7 @@ std::shared_future<MeshSnapshotData> DeformationController::applyDeformation(id_
                         auto future_mesh = DeformationFactory::create(params->deformation_id())
                                                    ->applyDeformation(parent_mesh, *params, threadpool_);
                         cache_.addSnapshotMesh(future_mesh, new_snapshot);
-                        return MeshSnapshotData{.mesh = future_mesh, .snapshot = new_snapshot};
+                        return MeshSnapshotData{future_mesh, new_snapshot};
                     })
                     .share();
 
@@ -75,7 +75,7 @@ bool DeformationController::isMeshReady(const sptr<const DeformationsSnapshot>& 
     }
 
     std::shared_lock lock(processing_meshes_mutex_);
-    return processing_meshes_data_.contains(snapshot->hash());
+    return contains(processing_meshes_data_, snapshot->hash());
 }
 
 void DeformationController::addMesh(sptr<const Mesh> mesh) {

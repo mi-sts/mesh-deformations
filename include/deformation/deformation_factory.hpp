@@ -3,6 +3,8 @@
 #include "deformation_interface.hpp"
 #include "utils/data_types.hpp"
 
+#include <mutex>
+
 class DeformationFactory {
 public:
     static void registerDeformation(id_t id, sptr<IDeformation> deformation) {
